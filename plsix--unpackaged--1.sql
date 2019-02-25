@@ -1,0 +1,3 @@
+ALTER EXTENSION plsix ADD PROCEDURAL LANGUAGE plsix;
+ALTER EXTENSION plsix ADD FUNCTION plsix_handler();
+ALTER EXTENSION plsix ADD FUNCTION plsix_validator(oid);

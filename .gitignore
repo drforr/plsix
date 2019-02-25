@@ -1,0 +1,7 @@
+*.o
+*.so
+.*.swo
+.*.swp
+plsix.sql
+plsix--?.sql
+/results/
