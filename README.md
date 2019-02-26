@@ -1,39 +1,41 @@
 PL/six Procedural Language Handler for PostgreSQL
 ================================================
 
-PL/sh is a procedural language handler for PostgreSQL that allows you
-to write stored procedures in a shell of your choice.  For example,
+This code is almost *entirely* from Peter Eisentraut <peter@eisentraut.org>.
+I've just changed the name from 'plsh' to 'plsix', and I want to change it
+to properly do execve(2) in order to run '/usr/bin/env perl6'. I've been
+playing with this for most of the development cycle.
 
-    -- The '/path/to/perl6' is due to change very shortly...
+PL/six is a procedural language handler for PostgreSQL that allows you
+to write stored procedures in Perl 6 - this is heavily derived from pl/sh.
+
+A sample stored function looks like:
  
-    CREATE FUNCTION concat(text, text) RETURNS text AS '
-    #!/path/to/perl6
-    say join '', @ARGS;
-    ' LANGUAGE plsix;
+```
+CREATE FUNCTION query (x int) RETURNS text  
+LANGUAGE plsix
+AS $$
+#!/path/to/your/perl6
+my $x = @ARGS[0];
+say "argument is $x";
+$$;
+```
 
-The first line must be a `#!' style shebang line with your Perl 6 binary
-in the appropriate path. [XXX XXX This is due to change, but is documented
-here just in case, for consistency should anyone care to read the logs.]
+You'll need to open your own DB connection if you want to do anything,
+please see DBIish for that side.
 
-The rest of the function body will be executed by that shell in
-a separate process.  The arguments are available as `@ARGS[0]`, `@ARGS[1]`,
-etc., as usual.  (This is the shell's syntax. If your shell uses something
-different then that's what you need to use.)  The return value will
-become what is printed to the standard output, with a newline
-stripped.  If nothing is printed, a null value is returned.  If
-anything is printed to the standard error, then the function aborts
-with an error and the message is printed.  If the script does not exit
-with status 0 then an error is raised as well.
+The body of the function will get copied into a /tmp/plsix-XXXXX file and
+evaluated by perl6. This should be "#!/usr/bin/env perl6" but I haven't
+quite cracked that yet. Arguments are passed in the @ARGS array, so you may
+want to play with sub MAIN at some point. Output goes from STDOUT directly
+back to Postgres. To return NULL, don't print anything. To throw an error,
+warn() or die() as appropriate, or exit with a non-zero status.
 
-The shell script can do anything you want, but you can't access the
-database directly.  Trigger functions are also possible, but they
-can't change the rows.  Needless to say, this language should not be
-declared as `TRUSTED`.
+Triggers should run, but won't alter rows because the interface doesn't parse
+the output back into SQL.
 
 The distribution also contains a test suite in the directory `test/`,
 which contains a simplistic demonstration of the functionality.
-
-I'm interested if anyone is using this.
 
 Peter Eisentraut <peter@eisentraut.org>
 
