@@ -1,7 +1,8 @@
 PL/six Procedural Language Handler for PostgreSQL
 ================================================
 
-This code is almost *entirely* from Peter Eisentraut <peter@eisentraut.org>.
+This code is almost *entirely* from Peter Eisentraut <peter@eisentraut.org> and
+his project https://github.com/petere/plsh.git PL/sh..
 I've just changed the name from 'plsh' to 'plsix', and I want to change it
 to properly do execve(2) in order to run '/usr/bin/env perl6'. I've been
 playing with this for most of the development cycle.
